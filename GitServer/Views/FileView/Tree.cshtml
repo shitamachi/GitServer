@@ -12,6 +12,19 @@
     var giturl = $"{request.Scheme}://{request.Host}/{currUser}/{currRepo}.git";
     var repo = Model.Repository;
     var lastcommit = repo.Commits.FirstOrDefault();
+
+    Commit GetLastCommit(string mdFile)
+    {
+        var filter = new Func<Commit, bool>(c =>
+        {
+            var cId = c.Tree[mdFile]?.Target?.Sha;
+            var pId = c.Parents?.FirstOrDefault()?[mdFile]?.Target?.Sha;
+            return (cId != pId);
+        });
+
+        return repo.Commits.Where(filter).OrderByDescending(c => c.Author.When).Take(1).FirstOrDefault();
+    }
+    
 }
 <div class="ui clearing segment">
     <h3 class="ui left floated header">@currUser / @currRepo</h3>
@@ -59,7 +72,7 @@
             bool isTree = fvm.Type == ObjectType.Tree;
             <tr>
                 <td class="collapsing"><i class="@((isTree) ? "folder" : "file outline") icon"></i><a href="@Url.UnencodedRouteLink((isTree) ? "GetTreeView" : "GetBlobView", new { repoName = currRepo, id = currId, path = fvm.Path })">@fvm.Name</a></td>
-                <td>@lastcommit.MessageShort</td>
+                <td>@GetLastCommit(fvm.Path).MessageShort</td>
                 <td class="right aligned collapsing">@lastcommit.Committer.When.ToString("yyyy-MM-dd HH:mm:ss")</td>
             </tr>
         }
