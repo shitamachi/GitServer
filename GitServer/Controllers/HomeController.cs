@@ -46,9 +46,9 @@ namespace GitServer.Controllers
             var username = HttpContext.User.Identity.Name;
             var reps = _repository.List(r => r.UserName == username).ToList();
             if (reps.Count > 9)
-                return View(new { error = "ÒÑ³¬¹ý10¸öÏÞÖÆ" });
+                return View(new { error = "å·²è¶…è¿‡10ä¸ªé™åˆ¶" });
             if (reps.Exists(r => r.Name == name))
-                return View(new { error = "ÒÑ´æÔÚ²Ö¿â" });
+                return View(new { error = "å·²å­˜åœ¨ä»“åº“" });
             if (!string.IsNullOrEmpty(name) && string.IsNullOrEmpty(remoteurl))
             {
                 result = RepositoryService.CreateRepository(Path.Combine(username, name));
