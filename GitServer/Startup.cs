@@ -14,6 +14,8 @@ using GitServer.ApplicationCore.Interfaces;
 using NetCoreBBS.Infrastructure.Repositorys;
 using GitServer.ApplicationCore.Models;
 using Microsoft.Extensions.Hosting;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Pomelo.EntityFrameworkCore.MySql.Storage;
 
 namespace GitServer
 {
@@ -40,7 +42,9 @@ namespace GitServer
                     services.AddDbContext<GitServerContext>(options => options.UseSqlServer(connectionString));
                     break;
                 case "MySQL":
-                    services.AddDbContext<GitServerContext>(options => options.UseMySQL(connectionString));
+                    services.AddDbContextPool<GitServerContext>(options => options.UseMySql(connectionString,
+                        mySqlOptions =>
+                            mySqlOptions.ServerVersion(new ServerVersion(new Version(5, 7, 29)))));
                     break;
                 default:
                     services.AddDbContext<GitServerContext>(options => options.UseSqlite(connectionString));
@@ -66,6 +70,7 @@ namespace GitServer
 			// Add git services
 			services.AddTransient<GitRepositoryService>();
 			services.AddTransient<GitFileService>();
+            services.AddScoped<UserService>();
             services.AddTransient<IRepository<User>, Repository<User>>();
             services.AddTransient<IRepository<Repository>, Repository<Repository>>();
         }
