@@ -1,0 +1,38 @@
+@using LibGit2Sharp
+@model List<Commit>
+
+@{
+    Layout = "_Layout";
+    var commitGroup = Model.GroupBy(commit => commit.Committer.When.Date);
+}
+
+<div>
+    @foreach (var grouping in commitGroup)
+    {
+        <div class="ui items">
+            <div class="ui horizontal divider" style="margin-top: 15px; margin-bottom: 25px">
+                @grouping.Key.Date.ToShortDateString() @grouping.Count() commits
+            </div>
+            @* <div><h2>@grouping.Key.Date.ToShortDateString() @grouping.Count() commits</h2></div> *@
+            @foreach (var commit in grouping)
+            {
+                <div class="item">
+                    <div class="content">
+                        <a class="header">@commit.MessageShort</a>
+                        <div class="meta">
+                            <span class="cinema">@commit.Author.Name</span>
+                            <span class="cinema">@commit.Committer.When.LocalDateTime</span>
+                        </div>
+                        <div class="description">
+                            @commit.Message
+                        </div>
+                        <div class="extra">
+                            <div class="ui label">@commit.Sha.Substring(0, 8)</div>
+                            <div class="ui label"><i class="globe icon"></i> Additional Languages</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
