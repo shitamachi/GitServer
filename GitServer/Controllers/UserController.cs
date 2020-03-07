@@ -10,15 +10,24 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using GitServer.ApplicationCore.Interfaces;
 using GitServer.ApplicationCore.Models;
+using GitServer.Services;
+using GitServer.ViewModel;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Logging;
 
 namespace GitServer.Controllers
 {    
     public class UserController : Controller
     {
         private IRepository<User> _user;
-        public UserController(IRepository<User> user)
+        private readonly UserService _service;
+        private readonly ILogger<UserController> _logger;
+
+        public UserController(IRepository<User> user, UserService service, ILogger<UserController> logger)
         {
             _user = user;
+            _service = service;
+            _logger = logger;
         }
         public IActionResult Index()
         {
@@ -67,11 +76,74 @@ namespace GitServer.Controllers
             }
             return View();
         }
-        public async Task<IActionResult> Signout()
+        public async Task<IActionResult> SignOut()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Redirect("/");
         }
 
+        public IActionResult ProfileSetting()
+        {
+            var currentUserName = HttpContext.User.Identity.Name;
+            var currentUser = _service.GetUserByName(currentUserName);
+            var model = new UserProfileSettingViewModel
+            {
+                Name = currentUser.Name,
+                Email = currentUser.Email
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult SaveChange(UserProfileSettingViewModel newProfile)
+        {
+            if (newProfile != null)
+            {
+                var user = _service.GetUserByName(HttpContext.User.Identity.Name);
+                user.Name = newProfile.Name;
+                user.Email = newProfile.Email;
+                _service.Save(user);
+            }
+
+            return Redirect(nameof(ProfileSetting));
+        }
+
+        [HttpGet]
+        public IActionResult SecuritySetting()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SecuritySetting(UserSecurityViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
+            if (!model.NewPassword.Equals(model.ConfirmNewPassword))
+            {
+                ModelState.AddModelError(string.Empty, "Password confirmation doesn\'t match the password");
+                return View();
+            }
+
+            var user = GetCurrentUser();
+            if (!model.OldPassword.Equals(user.Password))
+            {
+                ModelState.AddModelError(string.Empty,
+                    "New Password confirmation doesn\'t match the previous password");
+                return View();
+            }
+
+            user.Password = model.NewPassword;
+            _service.Save(user);
+            return RedirectToAction(nameof(SignOut));
+        }
+
+        private User GetCurrentUser()
+        {
+            return _service.GetUserByName(HttpContext.User.Identity.Name);
+        }
     }
 }

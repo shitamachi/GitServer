@@ -1,7 +1,12 @@
-﻿@using GitServer.Extensions
+﻿@using GitServer.ApplicationCore.Interfaces
+@using GitServer.Extensions
 @using GitServer.Models
 @using LibGit2Sharp
+@using RepositoryModel = GitServer.ApplicationCore.Models.Repository;
 @model TreeModel
+
+@inject IRepository<RepositoryModel> _repository;
+
 @{
     ViewBag.Title = Model.Name;
 
@@ -27,17 +32,27 @@
     
 }
 <div class="ui clearing segment">
-    <h3 class="ui left floated header">@currUser / @currRepo</h3>
+    <h3 class="ui left floated header">
+        <a asp-controller="Home" asp-action="Home">@currUser</a>
+        /
+        <a href="/@currUser/@currRepo">@currRepo</a>
+    </h3>
 </div>
-<h2>Contents of @Model.Name</h2>
+@* TODO 如果是仓库的作者可以直接修改库的说明，如果没有权限那么只有显示*@ 
+<h2>@_repository.List(r => r.UserName == currUser && r.Name == currRepo).FirstOrDefault()?.Description</h2>
 <div class="ui fluid action input">
-    <input type="text" value="@giturl" readonly>
-    <button class="ui teal right labeled icon button"><i class="copy icon"></i> Copy </button>
+    <input id="clone-url" type="text" value="@giturl" readonly>
+    <button class="ui teal right labeled icon button"
+            onclick="document.getElementById('clone-url').select();
+            document.execCommand('Copy') ? alert('copy ok') : alert('copy failed');">
+        <i class="copy icon"></i>
+        Copy
+    </button>
 </div>
 <div class="ui segment" id="git-stats">
     <div class="ui two horizontal center link list">
         <div class="item">
-            <a href="#"><span class="ui text black"><i class="icon history"></i> <b>@repo.Commits.Count()</b> 提交历史</span> </a>
+            <div><span class="ui text black"><i class="icon history"></i> <b>@Html.RouteLink(($"{repo.Commits.Count()} commits"), "GetAllCommit", new {userName = currUser, repoName = currRepo, id = currId})</b></span></div>
         </div>
         <div class="item">
             <a href="#"><span class="ui text black"><i class="icon git"></i><b>@repo.Branches.Count()</b> 代码分支</span> </a>
@@ -55,7 +70,12 @@
 <table class="ui celled striped table">
     <thead>
         <tr>
-            <th colspan="3">@lastcommit.Author.Name &nbsp;&nbsp;<span class="ui label">@lastcommit.Message</span></th>
+            @* TODO 使作者和commit message可以点击进入相应的内容 *@
+            <th colspan="3">@lastcommit?.Author.Name &nbsp;&nbsp;<span class="ui label">@lastcommit?.Message</span>
+                @* TODO 右对齐,sha值可点击 *@
+                <span >Latest commit @repo.Commits.FirstOrDefault()?.Sha.Substring(0,7) @repo.Commits.FirstOrDefault()?.Committer.When.LocalDateTime
+                    </span>
+                </th>
         </tr>
     </thead>
     <tbody>
@@ -63,8 +83,6 @@
         {
             <tr>
                 <td class="collapsing"><i class="folder icon"></i><a href="@Url.UnencodedRouteLink("GetTreeView", new { repoName = currRepo, id = currId, path = Model.Parent })">..</a></td>
-                <td>Initial commit</td>
-                <td class="right aligned collapsing">10 hours ago</td>
             </tr>
         }
         @foreach (FileViewModel fvm in Model.Children)
@@ -73,7 +91,7 @@
             <tr>
                 <td class="collapsing"><i class="@((isTree) ? "folder" : "file outline") icon"></i><a href="@Url.UnencodedRouteLink((isTree) ? "GetTreeView" : "GetBlobView", new { repoName = currRepo, id = currId, path = fvm.Path })">@fvm.Name</a></td>
                 <td>@GetLastCommit(fvm.Path).MessageShort</td>
-                <td class="right aligned collapsing">@lastcommit.Committer.When.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td class="right aligned collapsing">@GetLastCommit(fvm.Path).Committer.When.ToString("yyyy-MM-dd HH:mm:ss")</td>
             </tr>
         }
     </tbody>

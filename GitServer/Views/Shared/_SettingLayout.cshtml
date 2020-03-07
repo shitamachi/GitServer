@@ -1,0 +1,22 @@
+@{
+    Layout = "_Layout";
+}
+
+
+<div class="ui menu top attached tabular">
+    <a class="active item" asp-action="ProfileSetting">
+        Profile
+    </a>
+    <a class="item">
+        Account
+    </a>
+    <a class="item" asp-action="SecuritySetting">
+        Security
+    </a>
+</div>
+<div class="ui">
+    @RenderBody()
+</div>
+<script>
+    $('.ui menu').accordion();
+</script>

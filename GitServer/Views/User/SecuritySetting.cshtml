@@ -1,0 +1,48 @@
+@model GitServer.ViewModel.UserSecurityViewModel
+
+@{
+    Layout = "_SettingLayout";
+}
+
+<div class="ui form thin">
+    <form method="post" asp-action="SecuritySetting">
+        <div asp-validation-summary="All"></div>
+        <div class="field">
+            <label asp-for="OldPassword"></label>
+            <input type="password" asp-for="OldPassword">
+        </div>
+        <div class="field">
+            <label asp-for="NewPassword"></label>
+            <input type="password" asp-for="NewPassword">
+        </div>
+        <div class="field">
+            <label asp-for="ConfirmNewPassword"></label>
+            <input type="password" asp-for="ConfirmNewPassword">
+        </div>
+        <button type="submit" class="ui teal button">Save</button>
+    </form>
+</div>
+<script>
+   $('.ui.form').form({
+       OldPassword: {
+           identifier: 'OldPassword',
+           rules: [
+               {type: 'empty', prompt: 'Please input your old password'}
+           ]
+       },
+       NewPassword: {
+           identifier: 'NewPassword',
+           rules: [
+               {type: 'empty', prompt: 'Please input your new password'}]
+       },
+       ConfirmNewPassword: {
+           identifier: 'ConfirmNewPassword',
+           rules: [
+               {type: 'empty', prompt: 'Please input your new password again'},
+               {
+                   type: 'match[NewPassword]',
+                   prompt: 'Password confirmation doesn\'t match the password'
+               }]
+       }
+   })
+</script>

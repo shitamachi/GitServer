@@ -24,9 +24,10 @@
                             <a class="item" href="/">首页</a>
                             <a class="item" href="#">探索</a>
                             <div class="right menu">
+                                <a class="item" asp-action="Create" asp-controller="Home">新建</a>
                                 @if (ViewContext.HttpContext.User.Identity.IsAuthenticated)
                                 {
-                                    <a class="item" href="#">@ViewContext.HttpContext.User.Identity.Name</a>
+                                    <a class="item" href="/User/ProfileSetting">@ViewContext.HttpContext.User.Identity.Name</a>
                                     <a class="item" href="/User/Signout">注销</a>
                                 }
                                 else

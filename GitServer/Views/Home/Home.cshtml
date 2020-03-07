@@ -12,12 +12,19 @@
 <div class="ui relaxed divided list">
     @foreach (var repo in Model)
     {
-        <div class="item">
-            <i class="large github middle aligned icon"></i>
-            <div class="content">
-                @Html.RouteLink(repo.Name, "GetRepositoryHomeView", new { userName = repo.UserName, repoName = repo.Name }, new { @class = "header medium ui" })
-                <div class="description">@repo.Description</div>
-                <div class="description">Updated @repo.UpdateTime</div>
+        <div class="ui items">
+            <div class="item">
+                <div class="content">
+                    <a class="header">
+                        @repo.UserName/@Html.RouteLink(repo.Name, "GetRepositoryHomeView", new {userName = repo.UserName, repoName = repo.Name}, new {@class = "header medium ui"})
+                    </a>
+                    <div class="description">
+                        <div class="description">@repo.Description</div>
+                    </div>
+                    <div class="extra">
+                        <div class="description">Updated @repo.UpdateTime</div>
+                    </div>
+                </div>
             </div>
         </div>
     }

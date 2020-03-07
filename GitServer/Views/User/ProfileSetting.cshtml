@@ -1,0 +1,19 @@
+@model GitServer.ViewModel.UserProfileSettingViewModel
+
+@{
+    Layout = "_SettingLayout";
+}
+
+<div class="ui form thin">
+    <form method="post" asp-action="SaveChange">
+        <div class="field">
+            <label asp-for="Name"></label>
+            <input type="text" asp-for="Name">
+        </div>
+        <div class="field">
+            <label asp-for="Email"></label>
+            <input type="text" asp-for="Email">
+        </div>
+        <button type="submit" class="ui teal button">Save</button>
+    </form>
+</div>

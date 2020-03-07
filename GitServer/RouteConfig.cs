@@ -49,6 +49,18 @@ namespace GitServer
 				new { method = new HttpMethodRouteConstraint("GET") }
 			);
 			#endregion
+
+			routeBuilder.MapRoute(
+				"GetAllCommit",
+				"{userName}/{repoName}/commit",
+				new {controller = "Commit", action = "GetAllCommit"},
+				new {method = new HttpMethodRouteConstraint("GET")}
+			);
+			
+			routeBuilder.MapRoute(
+				"UserSetting",
+				"{controller=User}/{action=Setting}"
+			);
 		}
     }
 }
