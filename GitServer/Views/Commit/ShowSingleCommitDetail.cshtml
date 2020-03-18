@@ -1,0 +1,41 @@
+﻿@using LibGit2Sharp
+@model Tuple<Repository, string>
+
+@{
+    var sha1 = Model.Item2;
+    var repo = Model.Item1;
+
+    var commit = repo.Commits.Single(c => c.Sha.Equals(sha1));
+    var branch = ViewContext.RouteData.Values["branch"];
+}
+
+<div>
+    <div class="ui card" style="width: 100%">
+        <div class="content">
+            <div class="header">@commit.MessageShort</div>
+            <div class="meta">@branch</div>
+            <div class="description">
+                <p>@commit.Author commited @commit.Committer.When.LocalDateTime </p>
+                <p>@commit.Parents.Count() commit @commit.Sha</p>
+            </div>
+        </div>
+    </div>
+    <p>showing </p>
+     @foreach (var parent in commit.Parents)
+     {
+         <p>@commit.Sha / @commit.MessageShort</p>
+         {
+             foreach (var patchChange in repo.Diff.Compare<Patch>(parent.Tree, commit.Tree))
+             {
+                 @patchChange.Patch
+             }
+             
+         }
+         foreach (var change in repo.Diff.Compare<TreeChanges>(parent.Tree,
+             commit.Tree))
+         {
+             <p>@change.Status, @change.Path</p>
+             Console.WriteLine("{0} : {1}", change.Status, change.Path);
+         }
+     }
+</div>

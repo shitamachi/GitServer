@@ -18,7 +18,9 @@
             {
                 <div class="item">
                     <div class="content">
-                        <a class="header">@commit.MessageShort</a>
+                        <a class="header" href="@ViewContext.RouteData.Values["branch"]/@commit.Sha">
+                            @commit.MessageShort
+                        </a>
                         <div class="meta">
                             <span class="cinema">@commit.Author.Name</span>
                             <span class="cinema">@commit.Committer.When.LocalDateTime</span>
@@ -28,7 +30,6 @@
                         </div>
                         <div class="extra">
                             <div class="ui label">@commit.Sha.Substring(0, 8)</div>
-                            <div class="ui label"><i class="globe icon"></i> Additional Languages</div>
                         </div>
                     </div>
                 </div>
