@@ -1,0 +1,43 @@
+﻿@model LibGit2Sharp.BranchCollection
+
+@{
+    ViewBag.Title = "Branch";
+    Layout = "_Layout";
+
+    var currRepo = (string) ViewContext.RouteData.Values["repoName"];
+    var currUser = (string) ViewContext.RouteData.Values["userName"];
+    
+    // HashSet<Signature> GetAuthor(Branch branch)
+    // {
+    //     var authors = new HashSet<Signature>();
+    //     foreach (Commit commit in branch.Commits)
+    //     {
+    //         if (!authors.Contains(commit.Author))
+    //         {
+    //             authors.Add(commit.Author);
+    //         }
+    //     }
+    //     return authors;
+    // }
+}
+
+
+<div class="ui cards">
+    @foreach (var branch in Model)
+    {
+        <div class="card">
+            <div class="content">
+                <div class="header">
+                    @Html.RouteLink(@branch.FriendlyName, "GetTreeView", new {userName = currUser, repoName = currRepo, id = branch.FriendlyName}, new {@class = "header medium ui"})
+                </div>
+                <div class="meta">updated at @branch.Tip.Committer.When.LocalDateTime</div>
+                <div class="description">
+                    <i class="users icon"></i>
+                    last commit by :
+                    @branch.Tip.Author.Name
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

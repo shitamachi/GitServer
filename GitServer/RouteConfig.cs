@@ -52,14 +52,28 @@ namespace GitServer
 
 			routeBuilder.MapRoute(
 				"GetAllCommit",
-				"{userName}/{repoName}/commit",
+				"{userName}/{repoName}/commit/{branch}",
 				new {controller = "Commit", action = "GetAllCommit"},
+				new {method = new HttpMethodRouteConstraint("GET")}
+			);
+			
+			routeBuilder.MapRoute(
+				"ShowSingleCommitDetail",
+				"{userName}/{repoName}/commit/{branch}/{sha1}",
+				new {controller = "Commit", action = "ShowSingleCommitDetail"},
 				new {method = new HttpMethodRouteConstraint("GET")}
 			);
 			
 			routeBuilder.MapRoute(
 				"UserSetting",
 				"{controller=User}/{action=Setting}"
+			);
+			
+			routeBuilder.MapRoute(
+				"Branch",
+				"{userName}/{repoName}/branch/",
+				new { controller = "Branch", action = "Index" },
+				new { method = new HttpMethodRouteConstraint("GET") }
 			);
 		}
     }
