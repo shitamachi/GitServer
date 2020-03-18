@@ -16,7 +16,7 @@
     var request = ViewContext.HttpContext.Request;
     var giturl = $"{request.Scheme}://{request.Host}/{currUser}/{currRepo}.git";
     var repo = Model.Repository;
-    var lastcommit = repo.Commits.FirstOrDefault();
+    var lastcommit = repo.Branches[currId].Tip;
 
     Commit GetLastCommit(string mdFile)
     {
@@ -52,10 +52,12 @@
 <div class="ui segment" id="git-stats">
     <div class="ui two horizontal center link list">
         <div class="item">
-            <div><span class="ui text black"><i class="icon history"></i> <b>@Html.RouteLink(($"{repo.Commits.Count()} commits"), "GetAllCommit", new {userName = currUser, repoName = currRepo, id = currId})</b></span></div>
+            @* TODO 按分支名进行查找 *@
+            <div><span class="ui text black"><i class="icon history"></i> <b>@Html.RouteLink(($"{repo.Commits.Count()} commits"), "GetAllCommit", new {userName = currUser, repoName = currRepo, branch = "master"})</b></span></div>
         </div>
         <div class="item">
-            <a href="#"><span class="ui text black"><i class="icon git"></i><b>@repo.Branches.Count()</b> 代码分支</span> </a>
+            @* <a ><span class="ui text black"><i class="icon git"></i><b>@repo.Branches.Count()</b> 代码分支</span> </a> *@
+            <a ><span class="ui text black"><i class="icon git"></i><b>@Html.RouteLink(($"{repo.Branches.Count()} branches"), "Branch", new {userName = currUser, repoName = currRepo})</b></span> </a>
         </div>
         <div class="item">
             <a href="#"><span class="ui text black"><i class="icon tag"></i> <b>0</b> 版本发布</span> </a>
