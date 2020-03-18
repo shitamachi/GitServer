@@ -1,0 +1,27 @@
+﻿@model IEnumerable<GitServer.ViewModel.IssueViewModel>
+@{
+    ViewData["Title"] = "Issue";
+}
+<div class="ui cards">
+    @foreach (var issue in Model)
+    {
+        if (issue.ParentIssueId != null)
+        {
+            continue;
+        }
+        <div class="card full-width">
+            <div class="content">
+                <div class="header">@issue.Title</div>
+                <div class="meta">@issue.</div>
+                <div class="description">
+                    <p>Cute dogs come in a variety of shapes and sizes. Some cute dogs are cute for their adorable faces, others for their tiny stature, and even others for their massive size.</p>
+                    <p>Many people also have their own barometers for what makes a cute dog.</p>
+                </div>
+            </div>
+            <div class="extra content">
+                <i class="check icon"></i>
+                121 Votes
+            </div>
+        </div>
+    }
+</div>

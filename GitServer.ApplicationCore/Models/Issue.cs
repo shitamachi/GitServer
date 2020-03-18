@@ -14,5 +14,7 @@ namespace GitServer.ApplicationCore.Models
         public bool IsPull { get; set; }
         public bool IsClosed { get; set; }
         public DateTime CreationDate { get; set; }
+        public List<string> Label { get; set; }
+        public long ParentIssueId { get; set; }
     }
 }

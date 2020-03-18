@@ -73,6 +73,7 @@ namespace GitServer
             services.AddScoped<UserService>();
             services.AddTransient<IRepository<User>, Repository<User>>();
             services.AddTransient<IRepository<Repository>, Repository<Repository>>();
+            services.AddTransient<IRepository<Issue>, Repository<Issue>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
