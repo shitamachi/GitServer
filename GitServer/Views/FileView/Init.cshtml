@@ -23,8 +23,12 @@
                         <button class="ui basic clone button blue" id="repo-clone-https" data-link="@giturl">
                             HTTP
                         </button>
-                        <input type="text" value="@giturl" readonly>
-                        <button class="ui teal right labeled icon button"><i class="copy icon"></i> Copy</button>
+                        <input id="clone-url" type="text" value="@giturl" readonly>
+                        <button class="ui teal right labeled icon button"
+                                onclick="document.getElementById('clone-url').select();
+                                           document.execCommand('Copy') ? alert('copy ok') : alert('copy failed');">
+                            <i class="copy icon"></i> Copy
+                        </button>
                     </div>
                 </div>
                 <div class="ui divider"></div>
