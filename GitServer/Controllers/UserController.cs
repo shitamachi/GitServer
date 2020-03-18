@@ -95,7 +95,7 @@ namespace GitServer.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveChange(UserProfileSettingViewModel newProfile)
+        public IActionResult ProfileSetting(UserProfileSettingViewModel newProfile)
         {
             if (newProfile != null)
             {
