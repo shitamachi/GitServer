@@ -17,11 +17,16 @@ namespace GitServer.Infrastructure
         public DbSet<Team> Teams { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserTeamRole> UserTeamRoles { get; set; }
+        public DbSet<Issue> Issues { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<IssueComment> IssueComments { get; set; }
+        public DbSet<Message> Messages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<TeamRepositoryRole>().HasKey(t => new { t.TeamID, t.RepositoryID });
             modelBuilder.Entity<UserTeamRole>().HasKey(t => new { t.UserID, t.TeamID });
+            modelBuilder.Entity<IssueComment>().HasKey(t => new {t.IssueID, t.CommentID});
         }
     }
 }
