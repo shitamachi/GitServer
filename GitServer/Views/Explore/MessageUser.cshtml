@@ -1,0 +1,45 @@
+﻿@using GitServer.ApplicationCore.Interfaces
+@using GitServer.ApplicationCore.Models
+@model IEnumerable<GitServer.ApplicationCore.Models.Message>
+
+@inject IRepository<Message> _message;
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+
+    var currentUserName = Context.User.Identity.Name ?? Model.FirstOrDefault()?.SendUserName;
+}
+
+<div style="max-height: 370px; overflow: auto">
+    @foreach (var message in Model)
+    {
+        if (message.ReceiverUserName.Equals(currentUserName) && !message.IsRead)
+        {
+            message.IsRead = true;
+            _message.Edit(message);
+        }
+        if (currentUserName.Equals(message.SendUserName))
+        {
+            <div class="ui red segment">
+                <p><b>@message.SendUserName</b> @message.SendDate.ToLocalTime()</p>
+                <p>@message.Content</p>
+            </div>
+        }
+        else
+        {
+            <div class="ui blue segment">
+                <p><b>@message.SendUserName</b> @message.SendDate.ToLocalTime()</p>
+                <p>@message.Content</p>
+            </div>
+        }
+    }
+</div>
+<form class="ui reply form" action="" method="post">
+    <div class="field">
+        <textarea id="reply-field" name="content"></textarea>
+    </div>
+    <button class="ui blue labeled submit icon button" type="submit">
+        <i class="icon edit"></i> Add Reply
+    </button>
+</form>

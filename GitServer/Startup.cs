@@ -44,60 +44,69 @@ namespace GitServer
                 case "MySQL":
                     services.AddDbContextPool<GitServerContext>(options => options.UseMySql(connectionString,
                         mySqlOptions =>
-                            mySqlOptions.ServerVersion(new ServerVersion(new Version(5, 7, 29)))));
+                        {
+                            mySqlOptions.ServerVersion(new ServerVersion(new Version(5, 7, 29)));
+                            mySqlOptions.MigrationsAssembly("GitServer");
+                        }));
                     break;
                 default:
                     services.AddDbContext<GitServerContext>(options => options.UseSqlite(connectionString));
                     break;
             }
+
             // Add framework services.
-            services.AddMvc(option=> {
-                option.EnableEndpointRouting = false;
-            });
-			services.AddOptions();
+            services.AddMvc(option => { option.EnableEndpointRouting = false; });
+            services.AddOptions();
 
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            }).AddCookie(options=> {
+            }).AddCookie(options =>
+            {
                 options.AccessDeniedPath = "/User/Login";
                 options.LoginPath = "/User/Login";
             }).AddBasic();
 
             // Add settings
             services.Configure<GitSettings>(Configuration.GetSection(nameof(GitSettings)));
-			// Add git services
-			services.AddTransient<GitRepositoryService>();
-			services.AddTransient<GitFileService>();
-            services.AddScoped<UserService>();
-            services.AddTransient<IRepository<User>, Repository<User>>();
+            // Add git services
+            services.AddTransient<GitRepositoryService>();
+            services.AddTransient<GitFileService>();
+            services.AddTransient<UserService>();
+            services.AddScoped<IssueService>();
+            services.AddScoped<IRepository<User>, Repository<User>>();
             services.AddTransient<IRepository<Repository>, Repository<Repository>>();
             services.AddTransient<IRepository<Issue>, Repository<Issue>>();
+            services.AddTransient<IRepository<Comment>, Repository<Comment>>();
+            services.AddTransient<IRepository<Message>, Repository<Message>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             InitializeGitServerDatabase(app.ApplicationServices);
-			if(env.IsDevelopment())
-			{
-				app.UseDeveloperExceptionPage();
-			}
-			else
-			{
-				app.UseExceptionHandler("/error");
-			}
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/error");
+            }
+
             app.UseAuthentication();
             app.UseStaticFiles();
             app.UseMvc(routes => RouteConfig.RegisterRoutes(routes));
-		}
+        }
+
         private void InitializeGitServerDatabase(IServiceProvider serviceProvider)
         {
             using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var db = serviceScope.ServiceProvider.GetService<GitServerContext>();
                 db.Database.EnsureCreated();
+                // db.Database.Migrate();
                 if (db.Users.Count() == 0)
                 {
                     //db.SaveChanges();

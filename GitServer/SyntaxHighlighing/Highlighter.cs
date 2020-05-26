@@ -68,7 +68,7 @@ namespace GitServer.SyntaxHighlighing
 
 		public static Highlighter CSharpHighlighter => _cSharpHighlighter;
 		private static Highlighter _cSharpHighlighter = new Highlighter(
-			new HighlighterRule(@"^\/\/.*?\n") { { "class", "comment" } },						//Line comments
+			new HighlighterRule(@"^\/\/.*?\n") { { "class", "comment" } },		   //Line comments
 			new HighlighterRule(@"^\/\*.*?\*\/") { { "class", "comment" } },					//Muliline comments
 			new HighlighterRule(@"^""[^""\\]*(\\.[^""\\]*)*""") { { "class", "string" } },		//String literals
 			new HighlighterRule(@"^\s"),														//Whitespace

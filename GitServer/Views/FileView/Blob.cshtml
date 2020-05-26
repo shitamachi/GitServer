@@ -1,27 +1,68 @@
-@using GitServer.Extensions
 @using GitServer.Models
-@using GitServer.SyntaxHighlighing
 @model BlobModel
 
 @{
-	ViewBag.Title = Model.Name;
+    ViewBag.Title = Model.Name;
 }
-<link rel="stylesheet" href="~/js/highlight/styles/foundation.css">
-<script src="~/js/highlight/highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-@if(Model.IsBinary)
+<link rel="stylesheet"
+      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.3/build/styles/default.min.css">
+<link rel="stylesheet" href="~/css/code-line-number.css"/>
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.3/build/highlight.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.7.0/dist/highlightjs-line-numbers.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+</script>
+@if (Model.IsBinary)
 {
-	<p>This file is binary and cannot be displayed.</p>
+    <p>This file is binary and cannot be displayed.</p>
 }
 else
 {
-    <pre>@Model.Content</pre> 
+    <div>
+        <div class="ui mini horizontal statistic">
+            <div class="value" id="line-numbers">
+            
+            </div>
+            <div class="label">
+                lines
+            </div>
+        </div>
+        <div class="ui mini horizontal statistic">
+            @{
+                var byteSize = System.Text.Encoding.Default.GetByteCount(Model.Content);
+                if (byteSize < 1024)
+                {
+                    <div class="value">
+                        @byteSize
+                    </div>
+                    <div class="label">
+                        bytes
+                    </div>
+                }
+                else
+                {
+                    <div class="value">
+                        @(byteSize / 1024)
+                    </div>
+                    <div class="label">
+                        kb
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    <pre><code class="hljs">@Model.Content</code></pre>
     //Html.HighlightCode(Model.Content, Highlighter.FromExtension(System.IO.Path.GetExtension(Model.Name)), "code")
 }
 <script>
     $(document).ready(function () {
-        $('pre').each(function (i, block) {
+        $('code.hljs').each(function (i, block) {
             hljs.highlightBlock(block);
         });
     });
+    window.onload = function () {
+        let lineNumbers = $(".hljs-ln-n").length
+        $("#line-numbers").text(lineNumbers)
+    }
 </script>

@@ -6,6 +6,7 @@
 
 <div class="ui form thin">
     <form method="post" asp-action="SecuritySetting">
+        @* 正常浏览不会出现，如果后端检验失败，则发出提示 *@
         <div asp-validation-summary="All"></div>
         <div class="field">
             <label asp-for="OldPassword"></label>

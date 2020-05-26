@@ -1,0 +1,55 @@
+﻿@model IEnumerable<GitServer.ApplicationCore.Models.Message>
+
+@{
+    ViewBag.Title = "Message";
+    Layout = "_Layout";
+
+    var currentUserName = Context.User.Identity.Name;
+    var users = new List<string>();
+    foreach (var message in Model)
+    {
+        if (!users.Exists(s => s.Equals(message.SendUserName)))
+        {
+            users.Add(message.SendUserName);
+        }
+        if (!users.Exists(s => s.Equals(message.ReceiverUserName)))
+        {
+            users.Add(message.ReceiverUserName);
+        }
+    }
+    users.RemoveAll(s => s.Equals(currentUserName));
+}
+
+@foreach (var user in users)
+{
+    var unReadMsgCount = Model.Where(message => message.SendUserName.Equals(user) && message.ReceiverUserName.Equals(currentUserName)).Count(message => !message.IsRead);
+    if (unReadMsgCount > 0)
+    {
+        <div class="ui negative message">
+            @* <i class="close icon"></i> *@
+            <div class="header">
+                <a class="" asp-action="MessageUser" asp-route-chatUserName="@user">
+                    @user
+                </a>
+            </div>
+            <p>
+                <b>@unReadMsgCount</b> message unread
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="ui positive message">
+            @* <i class="close icon"></i> *@
+            <div class="header">
+                <a asp-action="MessageUser" asp-route-chatUserName="@user">
+                    @user
+                </a>
+            </div>
+            <p>
+                <b>nothing new</b>
+            </p>
+        </div>
+    }
+}
+

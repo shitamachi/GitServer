@@ -15,7 +15,7 @@ namespace GitServer.Services
 
         public User GetUserById(long id)
         {
-            return _user.GetById((int) id);
+            return _user.List(user => user.ID == id).FirstOrDefault();
         }
 
         public User GetUserByName(string name)

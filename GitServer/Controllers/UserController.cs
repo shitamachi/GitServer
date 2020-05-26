@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 
 namespace GitServer.Controllers
-{    
+{
     public class UserController : Controller
     {
         private IRepository<User> _user;
@@ -29,14 +29,17 @@ namespace GitServer.Controllers
             _service = service;
             _logger = logger;
         }
+
         public IActionResult Index()
         {
             return Content("ok");
         }
+
         public IActionResult Login()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {
@@ -45,7 +48,8 @@ namespace GitServer.Controllers
                 var user = _user.List(r => r.Name == model.Username && r.Password == model.Password).FirstOrDefault();
                 if (user != null)
                 {
-                    var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+                    var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme,
+                        ClaimTypes.Name, ClaimTypes.Role);
                     identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Name));
                     identity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
                     identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
@@ -54,12 +58,15 @@ namespace GitServer.Controllers
                     return Redirect("/");
                 }
             }
+
             return View();
         }
+
         public IActionResult Register()
         {
             return View();
         }
+
         [HttpPost]
         public IActionResult Register(RegisterModel model)
         {
@@ -74,8 +81,10 @@ namespace GitServer.Controllers
                 });
                 return Redirect("/");
             }
+
             return View();
         }
+
         public async Task<IActionResult> SignOut()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -89,7 +98,9 @@ namespace GitServer.Controllers
             var model = new UserProfileSettingViewModel
             {
                 Name = currentUser.Name,
-                Email = currentUser.Email
+                Email = currentUser.Email,
+                Description = currentUser.Description,
+                WebSite = currentUser.WebSite
             };
             return View(model);
         }
@@ -102,6 +113,8 @@ namespace GitServer.Controllers
                 var user = _service.GetUserByName(HttpContext.User.Identity.Name);
                 user.Name = newProfile.Name;
                 user.Email = newProfile.Email;
+                user.Description = newProfile.Description;
+                user.WebSite = newProfile.WebSite;
                 _service.Save(user);
             }
 

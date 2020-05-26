@@ -22,11 +22,12 @@
                                 <img src="/img/logo_white.svg" alt="GitServer" class="logo-image" />
                             </a>
                             <a class="item" href="/">首页</a>
-                            <a class="item" href="#">探索</a>
+                            <a class="item" asp-controller="Explore" asp-action="Index">探索</a>
                             <div class="right menu">
                                 <a class="item" asp-action="Create" asp-controller="Home">新建</a>
                                 @if (ViewContext.HttpContext.User.Identity.IsAuthenticated)
                                 {
+                                    <a class="item" asp-action="AllMessages" asp-controller="Explore">消息</a>
                                     <a class="item" href="/User/ProfileSetting">@ViewContext.HttpContext.User.Identity.Name</a>
                                     <a class="item" href="/User/Signout">注销</a>
                                 }
@@ -47,10 +48,10 @@
     <footer>
         <div class="ui container">
             <div class="ui left">
-                LineZero © 2017 GitServer 当前版本: 0.1
+                GuoJiang © 2020 GitServer 当前版本: 0.1
             </div>
             <div class="ui right links">
-                <a target="_blank" href="https://github.com/linezero/GitServer">GitHub</a>
+                <a target="_blank" href="https://github.com/shitamachi/GitServer">GitHub</a>
             </div>
         </div>
     </footer>

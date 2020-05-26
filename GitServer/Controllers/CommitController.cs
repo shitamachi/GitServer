@@ -33,9 +33,9 @@ namespace GitServer.Controllers
             ViewBag.Sha1 = sha1;
             var path = Path.Combine(userName, repoName);
             var repo = _repositoryService.GetRepository(path);
-            var commit = repo.Commits.Single(c => c.Sha.Equals(sha1));
+            var commit = repo.Branches[branch].Commits.Single(c => c.Sha.Equals(sha1));
 
-            var c = repo.Commits.Single(c => c.Sha == sha1);
+            var c = repo.Branches[branch].Commits.Single(c => c.Sha == sha1);
             foreach (var t in c.Tree)
             {
                 var blob = t.Target as Blob;

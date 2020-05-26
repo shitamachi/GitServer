@@ -1,26 +1,44 @@
-﻿@model IEnumerable<GitServer.ViewModel.IssueViewModel>
+﻿@using GitServer.ApplicationCore.Models
+@using GitServer.Extensions
+@model IEnumerable<GitServer.ViewModel.IssueViewModel>
 @{
     ViewData["Title"] = "Issue";
+
+    var currRepo = (string) ViewContext.RouteData.Values["repoName"];
+    var currUser = (string) ViewContext.RouteData.Values["userName"];
 }
-<div class="ui cards">
-    @foreach (var issue in Model)
-    {
-        if (issue.ParentIssueId != null)
-        {
-            continue;
-        }
-        <div class="card full-width">
+@if (!Model.Any())
+{
+    <div class="ui cards" style="margin-top: 10px; width: 100%">
+        <div class="card" style="width: 100%">
             <div class="content">
-                <div class="header">@issue.Title</div>
-                <div class="meta">@issue.</div>
+                <div class="header">No Issue</div>
+                @* <div class="meta">Friend</div> *@
                 <div class="description">
-                    <p>Cute dogs come in a variety of shapes and sizes. Some cute dogs are cute for their adorable faces, others for their tiny stature, and even others for their massive size.</p>
-                    <p>Many people also have their own barometers for what makes a cute dog.</p>
+                    You can click new issue button to add a issue
                 </div>
             </div>
-            <div class="extra content">
-                <i class="check icon"></i>
-                121 Votes
+        </div>
+    </div>
+}
+<div class="right">
+    <a asp-action="NewIssue">
+        <button class="ui teal right labeled icon button"><i class="right arrow icon"></i>New Issue</button>
+    </a>
+</div>
+<div class="ui items">
+    @foreach (var issue in Model)
+    {
+        <div class="item">
+            <div class="content">
+                <a class="header" href="@Url.UnencodedRouteLink("IssueDetail", new {userName = currUser, repoName = currRepo, index = issue.Index})">@issue.Title</a>
+                <div class="meta">
+                    <span>@(issue.IsClosed ? "closed" : "open") at @issue.CreationDate.ToLocalTime()</span>
+                </div>
+                <div class="description">
+                    <p></p>
+                </div>
+                <div class="extra"></div>
             </div>
         </div>
     }

@@ -5,37 +5,49 @@
     var sha1 = Model.Item2;
     var repo = Model.Item1;
 
-    var commit = repo.Commits.Single(c => c.Sha.Equals(sha1));
-    var branch = ViewContext.RouteData.Values["branch"];
+    var branch = (string) ViewContext.RouteData.Values["branch"];
+    var commit = repo.Branches[branch].Commits.Single(c => c.Sha.Equals(sha1));
 }
 
+<link rel="stylesheet"
+      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.3/build/styles/default.min.css">
+<link rel="stylesheet" href="~/css/line-number.css"/>
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.3/build/highlight.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/highlightjs-line-numbers.js@2.7.0/dist/highlightjs-line-numbers.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+</script>
 <div>
     <div class="ui card" style="width: 100%">
         <div class="content">
             <div class="header">@commit.MessageShort</div>
-            <div class="meta">@branch</div>
+            <div class="meta">branch @branch</div>
             <div class="description">
                 <p>@commit.Author commited @commit.Committer.When.LocalDateTime </p>
                 <p>@commit.Parents.Count() commit @commit.Sha</p>
             </div>
         </div>
     </div>
-    <p>showing </p>
-     @foreach (var parent in commit.Parents)
-     {
-         <p>@commit.Sha / @commit.MessageShort</p>
-         {
-             foreach (var patchChange in repo.Diff.Compare<Patch>(parent.Tree, commit.Tree))
-             {
-                 @patchChange.Patch
-             }
-             
-         }
-         foreach (var change in repo.Diff.Compare<TreeChanges>(parent.Tree,
-             commit.Tree))
-         {
-             <p>@change.Status, @change.Path</p>
-             Console.WriteLine("{0} : {1}", change.Status, change.Path);
-         }
-     }
+    @foreach (var parent in commit.Parents)
+    {
+        {
+            foreach (var patchChange in repo.Diff.Compare<Patch>(parent.Tree, commit.Tree))
+            {
+                <pre><code class="language-diff">@patchChange.Patch</code></pre>
+            }
+        }
+        foreach (var change in repo.Diff.Compare<TreeChanges>(parent.Tree,
+            commit.Tree))
+        {
+            <p>@change.Status, @change.Path</p>
+        }
+    }
 </div>
+<script>
+$(document).ready(function() {
+    $('code.hljs').each(function(i, block) {
+        hljs.lineNumbersBlock(block);
+    });
+});
+</script>

@@ -7,9 +7,9 @@
     <a class="active item" asp-action="ProfileSetting">
         Profile
     </a>
-    <a class="item">
-        Account
-    </a>
+    @* <a class="item"> *@
+    @*     Account *@
+    @* </a> *@
     <a class="item" asp-action="SecuritySetting">
         Security
     </a>
@@ -18,5 +18,5 @@
     @RenderBody()
 </div>
 <script>
-    $('.ui menu').accordion();
+    $('.menu .item').tab();
 </script>

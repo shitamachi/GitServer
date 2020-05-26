@@ -1,0 +1,27 @@
+﻿@model GitServer.ViewModel.AddIssueViewModel
+
+@{
+    ViewBag.Title = "New Issue";
+    Layout = "_Layout";
+    
+    var currRepo = (string)ViewContext.RouteData.Values["repoName"];
+    var currUser = (string)ViewContext.RouteData.Values["userName"];
+}
+<div class="ui form">
+    <form method="post" action="/@currUser/@currRepo/issue/new">
+        @* <div asp-validation-summary="All"></div> *@
+        <div class="field">
+            <label asp-for="Title"></label>
+            <input type="text" asp-for="Title">
+        </div>
+        <div class="field">
+            <label asp-for="Content"></label>
+            <textarea asp-for="Content"></textarea>
+        </div>
+        @* <div class="field"> *@
+        @*     <label asp-for="ConfirmNewPassword"></label> *@
+        @*     <input type="password" asp-for="ConfirmNewPassword"> *@
+        @* </div> *@
+        <button type="submit" class="ui teal button">Submit New Issue</button>
+    </form>
+</div>

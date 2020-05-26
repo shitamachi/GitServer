@@ -10,13 +10,13 @@
 @{
     ViewBag.Title = Model.Name;
 
-    string currRepo = (string)ViewContext.RouteData.Values["repoName"];
-    string currUser = (string)ViewContext.RouteData.Values["userName"];
-    string currId = (string)ViewContext.RouteData.Values["id"];
+    string currRepo = (string) ViewContext.RouteData.Values["repoName"];
+    string currUser = (string) ViewContext.RouteData.Values["userName"];
+    string currId = (string) ViewContext.RouteData.Values["id"];
     var request = ViewContext.HttpContext.Request;
     var giturl = $"{request.Scheme}://{request.Host}/{currUser}/{currRepo}.git";
     var repo = Model.Repository;
-    var lastcommit = repo.Branches[currId].Tip;
+    var lastcommit = currId.Trim().Length <= 0 ? repo.Commits.FirstOrDefault() : repo.Branches[currId].Tip;
 
     Commit GetLastCommit(string mdFile)
     {
@@ -27,9 +27,9 @@
             return (cId != pId);
         });
 
-        return repo.Commits.Where(filter).OrderByDescending(c => c.Author.When).Take(1).FirstOrDefault();
+        return repo.Branches[currId].Commits.Where(filter).OrderByDescending(c => c.Author.When).Take(1).FirstOrDefault();
     }
-    
+
 }
 <div class="ui clearing segment">
     <h3 class="ui left floated header">
@@ -38,7 +38,7 @@
         <a href="/@currUser/@currRepo">@currRepo</a>
     </h3>
 </div>
-@* TODO 如果是仓库的作者可以直接修改库的说明，如果没有权限那么只有显示*@ 
+@* TODO 如果是仓库的作者可以直接修改库的说明，如果没有权限那么只有显示*@
 <h2>@_repository.List(r => r.UserName == currUser && r.Name == currRepo).FirstOrDefault()?.Description</h2>
 <div class="ui fluid action input">
     <input id="clone-url" type="text" value="@giturl" readonly>
@@ -53,48 +53,66 @@
     <div class="ui two horizontal center link list">
         <div class="item">
             @* TODO 按分支名进行查找 *@
-            <div><span class="ui text black"><i class="icon history"></i> <b>@Html.RouteLink(($"{repo.Commits.Count()} commits"), "GetAllCommit", new {userName = currUser, repoName = currRepo, branch = "master"})</b></span></div>
+            @* <div><span class="ui text black"><i class="icon history"></i> <b>@Html.RouteLink(($"{repo.Commits.Count()} commits"), "GetAllCommit", new {userName = currUser, repoName = currRepo, branch = currId})</b></span></div> *@
+            <div>
+                <span class="ui text black">
+                    <i class="icon history"></i> <b>@Html.RouteLink(($"{repo.Branches[currId].Commits.Count()} commits"), "GetAllCommit", new {userName = currUser, repoName = currRepo, branch = currId})</b>
+                </span>
+            </div>
         </div>
         <div class="item">
             @* <a ><span class="ui text black"><i class="icon git"></i><b>@repo.Branches.Count()</b> 代码分支</span> </a> *@
-            <a ><span class="ui text black"><i class="icon git"></i><b>@Html.RouteLink(($"{repo.Branches.Count()} branches"), "Branch", new {userName = currUser, repoName = currRepo})</b></span> </a>
+            <a >
+                <span class="ui text black">
+                    <i class="icon git"></i><b>@Html.RouteLink(($"{repo.Branches.Count()} branches"), "Branch", new {userName = currUser, repoName = currRepo})</b>
+                </span>
+            </a>
         </div>
         <div class="item">
-            <a href="#"><span class="ui text black"><i class="icon tag"></i> <b>0</b> 版本发布</span> </a>
+            <a class="item" href="@Url.UnencodedRouteLink("Issue", new {userName = currUser, repoName = currRepo})">
+                <span class="ui text black"><i class="icon tag"></i> <b></b> Issues</span>
+            </a>
         </div>
     </div>
 </div>
 <div class="ui top attached tabular menu">
     <a class="item active" data-tab="code">代码</a>
-    <a class="item" data-tab="issues">Issues</a>
-    <a class="item" data-tab="pull">Pull requests</a>
+    <a class="item" data-tab="issues" href="@Url.UnencodedRouteLink("Issue", new {userName = currUser, repoName = currRepo})">Issues</a>
+    @* <a class="item" data-tab="pull">Pull requests</a> *@
 </div>
 <table class="ui celled striped table">
     <thead>
-        <tr>
-            @* TODO 使作者和commit message可以点击进入相应的内容 *@
-            <th colspan="3">@lastcommit?.Author.Name &nbsp;&nbsp;<span class="ui label">@lastcommit?.Message</span>
-                @* TODO 右对齐,sha值可点击 *@
-                <span >Latest commit @repo.Commits.FirstOrDefault()?.Sha.Substring(0,7) @repo.Commits.FirstOrDefault()?.Committer.When.LocalDateTime
-                    </span>
-                </th>
-        </tr>
+    <tr>
+        @* TODO 使作者和commit message可以点击进入相应的内容 *@
+        <th colspan="3">
+            @lastcommit?.Author.Name &nbsp;&nbsp;<span class="ui label">@lastcommit?.Message</span>
+            @* TODO 右对齐,sha值可点击 *@
+            @* <span >Latest commit @repo.Commits.FirstOrDefault()?.Sha.Substring(0,7) @repo.Commits.FirstOrDefault()?.Committer.When.LocalDateTime *@
+            <span >
+                Latest commit @lastcommit?.Sha.Substring(0, 7) on @lastcommit?.Committer.When.LocalDateTime
+            </span>
+        </th>
+    </tr>
     </thead>
     <tbody>
-        @if (Model.Parent != null)
-        {
-            <tr>
-                <td class="collapsing"><i class="folder icon"></i><a href="@Url.UnencodedRouteLink("GetTreeView", new { repoName = currRepo, id = currId, path = Model.Parent })">..</a></td>
-            </tr>
-        }
-        @foreach (FileViewModel fvm in Model.Children)
-        {
-            bool isTree = fvm.Type == ObjectType.Tree;
-            <tr>
-                <td class="collapsing"><i class="@((isTree) ? "folder" : "file outline") icon"></i><a href="@Url.UnencodedRouteLink((isTree) ? "GetTreeView" : "GetBlobView", new { repoName = currRepo, id = currId, path = fvm.Path })">@fvm.Name</a></td>
-                <td>@GetLastCommit(fvm.Path).MessageShort</td>
-                <td class="right aligned collapsing">@GetLastCommit(fvm.Path).Committer.When.ToString("yyyy-MM-dd HH:mm:ss")</td>
-            </tr>
-        }
+    @if (Model.Parent != null)
+    {
+        <tr>
+            <td class="collapsing">
+                <i class="folder icon"></i><a href="@Url.UnencodedRouteLink("GetTreeView", new {repoName = currRepo, id = currId, path = Model.Parent})">..</a>
+            </td>
+        </tr>
+    }
+    @foreach (FileViewModel fvm in Model.Children)
+    {
+        bool isTree = fvm.Type == ObjectType.Tree;
+        <tr>
+            <td class="collapsing">
+                <i class="@((isTree) ? "folder" : "file outline") icon"></i><a href="@Url.UnencodedRouteLink((isTree) ? "GetTreeView" : "GetBlobView", new {repoName = currRepo, id = currId, path = fvm.Path})">@fvm.Name</a>
+            </td>
+            <td>@GetLastCommit(fvm.Path).MessageShort</td>
+            <td class="right aligned collapsing">@GetLastCommit(fvm.Path).Committer.When.ToString("yyyy-MM-dd HH:mm:ss")</td>
+        </tr>
+    }
     </tbody>
 </table>
